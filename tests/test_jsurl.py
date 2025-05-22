@@ -44,7 +44,7 @@ def load_cases():
 
 
 @pytest.mark.parametrize("case", load_cases(), ids=lambda case: case.description)
-def test_urls(case: ValidCase | InvalidCase):
+def test_parse_urls(case: ValidCase | InvalidCase):
 
   if isinstance(case, ValidCase):
     url = URL(case.url)
@@ -64,3 +64,86 @@ def test_urls(case: ValidCase | InvalidCase):
   else:
     with pytest.raises(Exception):
       URL(case.url)
+
+
+def test_modify_url():
+  url = URL('https://example.com:8080/')
+  copy = URL(url)
+
+  assert url == copy
+  assert url is not copy
+
+  url.protocol = 'http'
+
+  assert url.protocol == 'http:'
+  assert url.href == 'http://example.com:8080/'
+  assert url.origin == 'http://example.com:8080'
+  assert copy.protocol == 'https:'
+  assert url != copy
+
+  url.protocol = 'rtsp:'
+
+  assert url.protocol == 'rtsp:'
+  assert url.href == 'rtsp://example.com:8080/'
+  assert url.origin == 'rtsp://example.com:8080'
+
+  url.username = 'user'
+
+  assert url.username == 'user'
+  assert url.href == 'rtsp://user@example.com:8080/'
+  assert url.origin == 'rtsp://example.com:8080'
+
+  url.password = 'password'
+  assert url.password == 'password'
+  assert url.href == 'rtsp://user:password@example.com:8080/'
+  assert url.origin == 'rtsp://example.com:8080'
+
+  url.hostname = 'localhost'
+  assert url.hostname == 'localhost'
+  assert url.href == 'rtsp://user:password@localhost:8080/'
+  assert url.origin == 'rtsp://localhost:8080'
+  assert url.host == 'localhost:8080'
+
+  url.port = '80'
+  assert url.port == '80'
+  assert url.href == 'rtsp://user:password@localhost:80/'
+  assert url.origin == 'rtsp://localhost:80'
+  assert url.host == 'localhost:80'
+
+  url.host = 'example.com'
+  assert url.host == 'example.com'
+  assert url.href == 'rtsp://user:password@example.com/'
+  assert url.origin == 'rtsp://example.com'
+  assert url.hostname == 'example.com'
+  assert url.port is None
+
+  url.host = 'example.com:8080'
+  assert url.host == 'example.com:8080'
+  assert url.href == 'rtsp://user:password@example.com:8080/'
+  assert url.origin == 'rtsp://example.com:8080'
+  assert url.hostname == 'example.com'
+  assert url.port == '8080'
+
+  with pytest.raises(ValueError):
+    url.host = 'localhost:8080:80'
+
+  assert url.host == 'example.com:8080'
+  assert url.hostname == 'example.com'
+  assert url.port == '8080'
+  assert url.href == 'rtsp://user:password@example.com:8080/'
+
+  with pytest.raises(ValueError):
+    url.host = 'localhost:-100'
+
+  assert url.host == 'example.com:8080'
+  assert url.hostname == 'example.com'
+  assert url.port == '8080'
+  assert url.href == 'rtsp://user:password@example.com:8080/'
+
+  with pytest.raises(ValueError):
+    url.host = 'localhost:1000000'
+
+  assert url.host == 'example.com:8080'
+  assert url.hostname == 'example.com'
+  assert url.port == '8080'
+  assert url.href == 'rtsp://user:password@example.com:8080/'

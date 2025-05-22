@@ -299,6 +299,26 @@ class URL:
 
     return self.hostname
 
+  @host.setter
+  def host(self, host: str) -> None:
+    if ':' in host:
+      if host.count(':') > 1:
+        raise ValueError(f"Invalid Host: {repr(host)}")
+
+      hostname, port = host.split(':', 1)
+
+      try:
+        if not (0 <= int(port) < 65536):
+          raise ValueError(f"Invalid Host: {repr(host)}")
+      except ValueError:
+        raise ValueError(f"Invalid Host: {repr(host)}") from None
+
+      self.hostname = hostname
+      self.port = port
+    else:
+      self.hostname = host
+      self.port = None
+
   @property
   def origin(self) -> str:
     host = self.host
