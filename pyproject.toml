@@ -4,7 +4,7 @@ version = "0.1.1"
 description = "Javascript-like URL parser for Python"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = { file = "LICENSE" }
 authors = [
   { name = "frodo821", email = "sakaic2003@gmail.com" },
 ]
@@ -20,6 +20,10 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
 ]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/frodo821/jsurl"
+Repository = "https://github.com/frodo821/jsurl"
 
 [build-system]
 requires = ["hatchling"]
@@ -48,4 +52,3 @@ allow_split_before_dict_value = false
 
 [tool.pytest.ini_options]
 addopts = "-n auto"
-
