@@ -1,3 +1,4 @@
+from collections.abc import MutableMapping
 from typing import Iterable
 from urllib.parse import quote as qt_urllib, unquote as uq_urllib
 
@@ -21,7 +22,7 @@ def _quote(value: str) -> str:
   return qt_urllib(value, encoding='utf-8', errors='replace', safe='')
 
 
-class URLSearchParams:
+class URLSearchParams(MutableMapping[str, list[str | None]]):
   __slots__ = ('_params', '_keys')
 
   def __init__(self, params: Iterable[tuple[str, str | None]]):
@@ -68,6 +69,12 @@ class URLSearchParams:
 
   def __setitem__(self, key: str, value: str | None) -> None:
     self.set(key, value)
+
+  def __delitem__(self, key: str) -> None:
+    self.delete(key)
+
+  def __len__(self) -> int:
+    return len(self._keys)
 
   def __str__(self) -> str:
     return '&'.join(
